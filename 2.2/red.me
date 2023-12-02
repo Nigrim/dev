@@ -1,0 +1,29 @@
+Связь между таблицей readers и lending_of_books:
+Каждый читатель из таблицы readers может иметь несколько записей о выдаче книг в таблице lending_of_books (один ко многим).
+number_of_reader_ticket в readers связан с number_of_reader_ticket в lending_of_books (внешний ключ).
+
+
+Связь между таблицей lending_of_books и copies_of_books:
+Каждая операция выдачи книги из таблицы lending_of_books связана с одной копией книги из таблицы copies_of_books (один к одному).
+copies_of_books_id в lending_of_books связан с copies_of_books_id в copies_of_books (внешний ключ).
+
+Связь между таблицей copies_of_books и books:
+Каждая копия книги из таблицы copies_of_books связана с одной книгой из таблицы books (один к одному).
+book_cipher в copies_of_books связан с book_cipher в books (внешний ключ).
+
+Связь между таблицей books и authors:
+Каждая книга из таблицы books связана с одним автором из таблицы authors (один к одному).
+author_id в books связан с author_id в authors (внешний ключ).
+
+Связь между таблицей books и publishing_houses:
+Каждая книга из таблицы books связана с одним издательством из таблицы publishing_houses (один к одному).
+publishing_house_id в books связан с publishing_house_id в publishing_houses (внешний ключ).
+
+Связь между таблицами authors_books, books, и authors:
+Каждая запись в таблице authors_books связывает одну книгу из таблицы books с одним автором из таблицы authors (многие ко многим).
+book_cipher в authors_books связан с book_cipher в books (внешний ключ).
+author_id в authors_books связан с author_id в authors (внешний ключ).
+
+
+
+
