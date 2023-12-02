@@ -1,0 +1,79 @@
+Задача:
+
+Напишите SQL-запросы, которые выполняют следующие действия:
+
+1) Возвращает список клиентов (имя и фамилия) с наибольшей общей суммой заказов.
+
+2) Для каждого клиента из пункта 1 выводит список его заказов (номер заказа и общая сумма) в порядке убывания общей суммы заказов.
+
+3) Выводит только тех клиентов, у которых общая сумма заказов превышает среднюю общую сумму заказов всех клиентов.
+
+Важно использовать подзапросы, агрегатные функции и объединения таблиц, чтобы выполнить это задание. Оптимизируйте запрос, где это возможно.
+
+Ответы:
+1) SELECT c.FirstName, c.LastName
+FROM Customers c
+JOIN (
+    SELECT CustomerID, SUM(TotalAmount) AS TotalOrderAmount
+    FROM Orders
+    GROUP BY CustomerID
+    ORDER BY TotalOrderAmount DESC
+    LIMIT 1
+) AS topCustomer ON c.CustomerID = topCustomer.CustomerID;
+Оптимизируем:
+SELECT c.FirstName, c.LastName
+FROM Customers c
+JOIN Orders o ON c.CustomerID = o.CustomerID
+GROUP BY c.CustomerID, c.FirstName, c.LastName
+ORDER BY SUM(o.TotalAmount) DESC
+LIMIT 1;
+Пояснения: 
+В первом случае использовал вложенный подзапрос для вычисления общей суммы заказов для каждого клиента и отсортировал эти результаты в порядке убывания. 
+Затем к соновному запросу присоедил этот подзапрос.
+В оптимизированном случае агрегацию и сортировку выполнил непосредственно в основном запросе. 
+
+2) SELECT c.CustomerID, c.FirstName, c.LastName, o.OrderID, o.TotalAmount AS OrderTotal
+FROM Customers c
+JOIN Orders o ON c.CustomerID = o.CustomerID
+JOIN (
+    SELECT CustomerID, OrderID, SUM(TotalAmount) AS TotalOrderAmount
+    FROM Orders
+    GROUP BY CustomerID, OrderID
+) AS orderTotals ON o.CustomerID = orderTotals.CustomerID AND o.OrderID = orderTotals.OrderID
+ORDER BY orderTotals.TotalOrderAmount DESC;
+Оптимизируем:
+SELECT c.CustomerID, c.FirstName, c.LastName, o.OrderID, SUM(o.TotalAmount) AS OrderTotal
+FROM Customers c
+JOIN Orders o ON c.CustomerID = o.CustomerID
+GROUP BY c.CustomerID, c.FirstName, c.LastName, o.OrderID
+ORDER BY OrderTotal DESC;
+Пояснения: 
+Точно так же как ив первой задаче вначале используем вложенный подзапрос, а потом обьеденяем результаты с таблицей. 
+В оптимизированном случае использую агрегатную функцию в основном запросе.
+
+3) SELECT c.CustomerID, c.FirstName, c.LastName, SUM(o.TotalAmount) AS TotalOrders
+FROM Customers c
+JOIN Orders o ON c.CustomerID = o.CustomerID
+GROUP BY c.CustomerID, c.FirstName, c.LastName
+HAVING TotalOrders > (
+    SELECT AVG(TotalAmount)
+    FROM (
+        SELECT CustomerID, SUM(TotalAmount) AS TotalAmount
+        FROM Orders
+        GROUP BY CustomerID
+    ) AS AvgOrders
+);
+Более читаемый код:
+WITH CustomerTotalOrders AS (
+    SELECT c.CustomerID, c.FirstName, c.LastName, SUM(o.TotalAmount) AS TotalOrders
+    FROM Customers c
+    JOIN Orders o ON c.CustomerID = o.CustomerID
+    GROUP BY c.CustomerID, c.FirstName, c.LastName
+)
+
+SELECT CustomerID, FirstName, LastName, TotalOrders
+FROM CustomerTotalOrders
+WHERE TotalOrders > (
+    SELECT AVG(TotalOrders)
+    FROM CustomerTotalOrders
+);
