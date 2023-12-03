@@ -1,14 +1,3 @@
--- Создание таблицы "shops" с информацией о магазинах
-CREATE TABLE shops (
-    shop_id INT PRIMARY KEY,
-    shop_name VARCHAR(255) NOT NULL
-);
-
--- Обновление таблицы "plan" с учетом магазинов
-ALTER TABLE plan
-ADD COLUMN shop_id INT,
-ADD FOREIGN KEY (shop_id) REFERENCES shops(shop_id);
-
 -- Создание временной таблицы с объединенными данными из shop_*
 WITH ShopSales AS (
     SELECT
